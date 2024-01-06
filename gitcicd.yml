@@ -1,0 +1,33 @@
+stages:
+  - setup
+  - test
+  - run_app
+
+variables:
+  PIPENV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pipenv"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONPATH: "$CI_PROJECT_DIR:$PYTHONPATH"
+
+before_script:
+  - apt-get update -qy
+  - command -v python3 || { apt-get install -y python3; }
+  - pip3 install --upgrade pip
+  - pip3 install pipenv
+  - pipenv --version
+  - pipenv install --dev --deploy --ignore-pipfile
+
+setup:
+  stage: setup
+  script:
+    - pipenv run python setup.py install
+
+test:
+  stage: test
+  script:
+    - pipenv run python -m pytest tests/
+
+run_app:
+  stage: run_app
+  script:
+    - pipenv run python your_app_script.py
